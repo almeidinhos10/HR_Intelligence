@@ -18,25 +18,25 @@ Plataforma fullstack de gestão de Recursos Humanos desenvolvida como projeto fi
 
 ## Módulos implementados
 
-### 4.1 — Gestão de Colaboradores e Gestores
+### 4.1 - Gestão de Colaboradores e Gestores
 - Perfis completos: cargo, departamento, equipa, contrato, histórico profissional, competências e certificações
 - Pesquisa por nome, cargo e departamento
 - Ativação/desativação de contas
 - Integração de novos colaboradores com aprovação pelo gestor
 
-### 4.2 — Gestão de Competências e Formações
+### 4.2 - Gestão de Competências e Formações
 - Matriz de competências por colaborador (níveis: iniciante, intermédio, avançado, especialista)
 - Catálogo de formações com inscrição e acompanhamento de progresso
 - Visão por departamento e análise de gaps
 
-### 4.3 — Avaliação de Desempenho
+### 4.3 - Avaliação de Desempenho
 - Ciclos de avaliação globais (criados pelo administrador) e de departamento (criados pelo gestor)
 - Métricas personalizáveis por ciclo
 - Avaliação da equipa pelo gestor com pontuação 1–5 por métrica
 - Histórico de avaliações com nota final calculada automaticamente
 - Comparativo visual da equipa por ciclo (gráfico de barras horizontal com cores por desempenho)
 
-### 4.4 — Gestão de Férias e Ausências
+### 4.4 - Gestão de Férias e Ausências
 - Pedidos de ausência pelo colaborador (férias, baixa médica, outro)
 - Aprovação/rejeição pelo gestor com motivo
 - Aprovação de pedidos de gestores pelo administrador
@@ -45,7 +45,7 @@ Plataforma fullstack de gestão de Recursos Humanos desenvolvida como projeto fi
 - Saldo de dias de férias por colaborador
 - Taxa de absentismo no dashboard
 
-### 4.5 — Dashboard Estratégico
+### 4.5 - Dashboard Estratégico
 - **Administrador**: distribuição por departamento, avaliações por ciclo, competências por nível, ausências por tipo, top competências, alertas estratégicos, taxa de absentismo
 - **Gestor**: métricas da equipa, ausentes hoje, histórico de avaliações em radar, ciclo ativo
 - **Colaborador**: saldo de férias, evolução de avaliações, radar de métricas da última avaliação
