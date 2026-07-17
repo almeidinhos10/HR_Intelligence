@@ -1,13 +1,11 @@
-import { EmptyState } from "../components/EmptyState";
+import { ROLES } from "../utils/permissions";
+import { SkillsAdmin } from "./SkillsAdmin";
+import { SkillsGestor } from "./SkillsGestor";
+import { SkillsColaborador } from "./SkillsColaborador";
 
-export function SkillsTrainingPage() {
-  return (
-    <section className="page">
-      <EmptyState
-        title="Competencias e Formacao"
-        message="Este modulo vai apresentar matriz de competencias, lacunas, formacoes realizadas e planeamento futuro."
-      />
-    </section>
-  );
+export function SkillsTrainingPage({ session }) {
+  const { role } = session.user;
+  if (role === ROLES.ADMIN) return <SkillsAdmin session={session} />;
+  if (role === ROLES.MANAGER) return <SkillsGestor session={session} />;
+  return <SkillsColaborador session={session} />;
 }
-

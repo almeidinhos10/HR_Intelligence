@@ -2,6 +2,11 @@
 
 Plataforma fullstack de gestão de Recursos Humanos desenvolvida como projeto final de licenciatura (UBI, 2025/2026).
 
+## Screenshot
+
+![Dashboard HR Intelligence](docs/screenshot.png)
+> Para visualizar a aplicação localmente, siga as instruções de setup abaixo.
+
 ## Tecnologias
 
 | Camada | Stack |
@@ -110,3 +115,8 @@ HR_Intelligence/
     │   └── api.js          # Todas as chamadas à API
     └── package.json
 ```
+
+## Autor
+
+**Rodrigo Almeida** — nº 51597  
+Licenciatura em Engenharia Informática · UBI 2025/2026

@@ -11,8 +11,8 @@ const employeeSchema = new mongoose.Schema(
     manager: { type: String, trim: true, default: "" },
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active"
+      enum: ["pending", "active", "inactive"],
+      default: "pending"
     },
     contract: {
       type: {

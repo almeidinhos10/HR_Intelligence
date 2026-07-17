@@ -1,45 +1,25 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "./components/AppLayout";
 import { CollaboratorsPage } from "./pages/CollaboratorsPage";
+import { ManagersPage } from "./pages/ManagersPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LeavesPage } from "./pages/LeavesPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { PerformancePage } from "./pages/PerformancePage";
-import { RegisterPage } from "./pages/RegisterPage";
+import { SetPasswordPage } from "./pages/SetPasswordPage";
 import { SkillsTrainingPage } from "./pages/SkillsTrainingPage";
+import { UsersPage } from "./pages/UsersPage";
 import {
-  createEmployee,
   deleteEmployee,
   getEmployees,
   login,
-  register,
   updateEmployee
 } from "./api";
+
 import { canManageEmployees, getAvailableModules } from "./utils/permissions";
 
-const emptyEmployeeForm = {
-  name: "",
-  email: "",
-  phone: "",
-  jobTitle: "",
-  department: "",
-  team: "",
-  manager: "",
-  contractType: "",
-  contractStartDate: "",
-  contractEndDate: "",
-  salaryBand: "",
-  professionalHistoryText: "",
-  skillsText: "",
-  certificationsText: ""
-};
 const emptyLoginForm = { email: "", password: "" };
-const emptyRegisterForm = {
-  name: "",
-  email: "",
-  password: "",
-  role: "colaborador"
-};
 
 function getSessionFromStorage() {
   try {
@@ -51,15 +31,14 @@ function getSessionFromStorage() {
 }
 
 export default function App() {
-  const [mode, setMode] = useState("login");
   const [activePage, setActivePage] = useState("dashboard");
   const [theme, setTheme] = useState(() => localStorage.getItem("hr_theme") || "light");
   const [session, setSession] = useState(getSessionFromStorage);
   const [employees, setEmployees] = useState([]);
-  const [employeeForm, setEmployeeForm] = useState(emptyEmployeeForm);
+  const [managers, setManagers] = useState([]);
   const [loginForm, setLoginForm] = useState(emptyLoginForm);
-  const [registerForm, setRegisterForm] = useState(emptyRegisterForm);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [loadingManagers, setLoadingManagers] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -78,6 +57,7 @@ export default function App() {
     setSession(null);
     localStorage.removeItem("hr_session");
     setEmployees([]);
+    setManagers([]);
     setActivePage("dashboard");
   }
 
@@ -105,10 +85,22 @@ export default function App() {
     }
   }
 
-  useEffect(() => {
-    if (activePage === "collaborators") {
-      loadEmployees();
+  async function loadManagers() {
+    if (!session?.token) return;
+    try {
+      setLoadingManagers(true);
+      const data = await getEmployees(session.token, { gestoresOnly: true });
+      setManagers(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingManagers(false);
     }
+  }
+
+  useEffect(() => {
+    if (activePage === "collaborators") { loadEmployees(); loadManagers(); }
+    if (activePage === "managers") loadManagers();
   }, [activePage, session?.token]);
 
   async function handleLogin(event) {
@@ -119,35 +111,6 @@ export default function App() {
       const data = await login(loginForm);
       saveSession(data);
       setLoginForm(emptyLoginForm);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleRegister(event) {
-    event.preventDefault();
-    try {
-      setSubmitting(true);
-      setError("");
-      const data = await register(registerForm);
-      saveSession(data);
-      setRegisterForm(emptyRegisterForm);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleCreateEmployee(payload) {
-    try {
-      setSubmitting(true);
-      setError("");
-      await createEmployee(session.token, payload);
-      setEmployeeForm(emptyEmployeeForm);
-      await loadEmployees();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -189,24 +152,59 @@ export default function App() {
     }
   }
 
+  async function handleToggleManagerStatus(manager) {
+    const status = manager.status === "active" ? "inactive" : "active";
+    try {
+      setError("");
+      await updateEmployee(session.token, manager._id, { status });
+      await loadManagers();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleUpdateManager(managerId, payload) {
+    try {
+      setSubmitting(true);
+      setError("");
+      await updateEmployee(session.token, managerId, payload);
+      await loadManagers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteManager(managerId) {
+    try {
+      setError("");
+      await deleteEmployee(session.token, managerId);
+      await loadManagers();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  const setupToken = new URLSearchParams(window.location.search).get("token");
+  if (setupToken) {
+    return (
+      <SetPasswordPage
+        token={setupToken}
+        onSuccess={(data) => {
+          saveSession(data);
+          window.history.replaceState({}, "", "/");
+        }}
+      />
+    );
+  }
+
   if (!session) {
-    return mode === "login" ? (
+    return (
       <LoginPage
         form={loginForm}
-        mode={mode}
         onChange={setLoginForm}
         onSubmit={handleLogin}
-        onModeChange={setMode}
-        submitting={submitting}
-        error={error}
-      />
-    ) : (
-      <RegisterPage
-        form={registerForm}
-        mode={mode}
-        onChange={setRegisterForm}
-        onSubmit={handleRegister}
-        onModeChange={setMode}
         submitting={submitting}
         error={error}
       />
@@ -219,22 +217,37 @@ export default function App() {
         <CollaboratorsPage
           session={session}
           employees={employees}
-          form={employeeForm}
+          gestores={managers}
           loading={loadingEmployees}
           submitting={submitting}
           error={error}
-          onFormChange={setEmployeeForm}
-          onCreate={handleCreateEmployee}
           onUpdate={handleUpdateEmployee}
           onToggleStatus={handleToggleStatus}
           onDelete={handleDeleteEmployee}
+          onReload={loadEmployees}
         />
       );
     }
 
-    if (activePage === "performance") return <PerformancePage />;
-    if (activePage === "skills") return <SkillsTrainingPage />;
-    if (activePage === "leaves") return <LeavesPage />;
+    if (activePage === "managers") {
+      return (
+        <ManagersPage
+          managers={managers}
+          loading={loadingManagers}
+          submitting={submitting}
+          error={error}
+          onUpdate={handleUpdateManager}
+          onToggleStatus={handleToggleManagerStatus}
+          onDelete={handleDeleteManager}
+        />
+      );
+    }
+
+    if (activePage === "profile") return <ProfilePage session={session} />;
+    if (activePage === "performance") return <PerformancePage session={session} />;
+    if (activePage === "users") return <UsersPage session={session} />;
+    if (activePage === "skills") return <SkillsTrainingPage session={session} />;
+    if (activePage === "leaves") return <LeavesPage session={session} />;
     return <DashboardPage session={session} />;
   }
 

@@ -1,13 +1,11 @@
-import { EmptyState } from "../components/EmptyState";
+import { ROLES } from "../utils/permissions";
+import { PerformanceAdmin } from "./PerformanceAdmin";
+import { PerformanceGestor } from "./PerformanceGestor";
+import { PerformanceColaborador } from "./PerformanceColaborador";
 
-export function PerformancePage() {
-  return (
-    <section className="page">
-      <EmptyState
-        title="Avaliacao de Desempenho"
-        message="Aqui vamos criar ciclos de avaliacao, metricas configuraveis, avaliacoes por gestores e historico comparativo."
-      />
-    </section>
-  );
+export function PerformancePage({ session }) {
+  const { role } = session.user;
+  if (role === ROLES.ADMIN) return <PerformanceAdmin session={session} />;
+  if (role === ROLES.MANAGER) return <PerformanceGestor session={session} />;
+  return <PerformanceColaborador session={session} />;
 }
-

@@ -13,20 +13,34 @@ export function canDeleteEmployees(role) {
 }
 
 export function getAvailableModules(role) {
-  const common = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "collaborators", label: "Colaboradores" },
-    { id: "performance", label: "Avaliacao" },
-    { id: "skills", label: "Competencias" },
-    { id: "leaves", label: "Ferias" }
-  ];
-
   if (role === ROLES.EMPLOYEE) {
-    return common.filter((module) =>
-      ["dashboard", "performance", "skills", "leaves"].includes(module.id)
-    );
+    return [
+      { id: "dashboard", label: "Dashboard" },
+      { id: "profile",   label: "Perfil",       section: "CONTA" },
+      { id: "performance", label: "Avaliações", section: "DESEMPENHO" },
+      { id: "skills",    label: "Competências" },
+      { id: "leaves",    label: "Férias",        section: "TEMPO" },
+    ];
   }
 
-  return common;
+  if (role === ROLES.ADMIN) {
+    return [
+      { id: "dashboard",     label: "Dashboard" },
+      { id: "collaborators", label: "Colaboradores", section: "PESSOAS" },
+      { id: "managers",      label: "Gestores" },
+      { id: "users",         label: "Utilizadores" },
+      { id: "performance",   label: "Avaliação",     section: "DESEMPENHO" },
+      { id: "skills",        label: "Competências" },
+      { id: "leaves",        label: "Férias",         section: "TEMPO" },
+    ];
+  }
+
+  return [
+    { id: "dashboard",     label: "Dashboard" },
+    { id: "collaborators", label: "Colaboradores", section: "PESSOAS" },
+    { id: "performance",   label: "Avaliação",     section: "DESEMPENHO" },
+    { id: "skills",        label: "Competências" },
+    { id: "leaves",        label: "Férias",         section: "TEMPO" },
+  ];
 }
 

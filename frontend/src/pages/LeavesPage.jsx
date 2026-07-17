@@ -1,13 +1,11 @@
-import { EmptyState } from "../components/EmptyState";
+import { ROLES } from "../utils/permissions";
+import { LeavesColaborador } from "./LeavesColaborador";
+import { LeavesGestor } from "./LeavesGestor";
+import { LeavesAdmin } from "./LeavesAdmin";
 
-export function LeavesPage() {
-  return (
-    <section className="page">
-      <EmptyState
-        title="Ferias e Ausencias"
-        message="Aqui entram pedidos de ferias, aprovacoes, saldos anuais, conflitos, periodos bloqueados e calendario."
-      />
-    </section>
-  );
+export function LeavesPage({ session }) {
+  const { role } = session.user;
+  if (role === ROLES.ADMIN) return <LeavesAdmin session={session} />;
+  if (role === ROLES.MANAGER) return <LeavesGestor session={session} />;
+  return <LeavesColaborador session={session} />;
 }
-

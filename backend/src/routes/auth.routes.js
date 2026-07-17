@@ -18,51 +18,29 @@ function createToken(user) {
   );
 }
 
-router.post("/register", async (req, res) => {
-  const { name, email, password, role } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: "name, email and password are required." });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ message: "Password must have at least 6 characters." });
-  }
-
-  const existing = await User.findOne({ email: email.toLowerCase().trim() });
-  if (existing) {
-    return res.status(409).json({ message: "Email is already in use." });
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({
-    name,
-    email,
-    passwordHash,
-    role: role || "colaborador"
-  });
-
-  const token = createToken(user);
-  return res.status(201).json({
-    token,
-    user: { id: user._id, name: user.name, email: user.email, role: user.role }
-  });
+// Registo público desativado — contas são criadas pelo admin via POST /users
+router.post("/register", (_req, res) => {
+  res.status(403).json({ message: "O registo público está desativado. Contacte o administrador." });
 });
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ message: "email and password are required." });
+    return res.status(400).json({ message: "email e password são obrigatórios." });
   }
 
   const user = await User.findOne({ email: email.toLowerCase().trim() });
   if (!user) {
-    return res.status(401).json({ message: "Invalid credentials." });
+    return res.status(401).json({ message: "Credenciais inválidas." });
+  }
+
+  if (!user.passwordHash) {
+    return res.status(403).json({ message: "Conta ainda não ativada. Verifique o seu email para definir a password." });
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) {
-    return res.status(401).json({ message: "Invalid credentials." });
+    return res.status(401).json({ message: "Credenciais inválidas." });
   }
 
   const token = createToken(user);
@@ -72,5 +50,39 @@ router.post("/login", async (req, res) => {
   });
 });
 
-export default router;
+// Definir password via token de setup
+router.post("/setup-password", async (req, res) => {
+  const { token, password } = req.body;
 
+  if (!token || !password) {
+    return res.status(400).json({ message: "token e password são obrigatórios." });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: "A password deve ter pelo menos 6 caracteres." });
+  }
+
+  const user = await User.findOne({
+    setupToken: token,
+    setupTokenExpiry: { $gt: new Date() }
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Link inválido ou expirado. Peça ao administrador que reenvie o convite." });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  user.passwordHash = passwordHash;
+  user.passwordSet = true;
+  user.setupToken = null;
+  user.setupTokenExpiry = null;
+  await user.save();
+
+  const jwtToken = createToken(user);
+  return res.json({
+    token: jwtToken,
+    user: { id: user._id, name: user.name, email: user.email, role: user.role }
+  });
+});
+
+export default router;
