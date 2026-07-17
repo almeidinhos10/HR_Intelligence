@@ -41,6 +41,7 @@ export function getAvailableModules(role) {
     { id: "performance",   label: "Avaliação",     section: "DESEMPENHO" },
     { id: "skills",        label: "Competências" },
     { id: "leaves",        label: "Férias",         section: "TEMPO" },
+    { id: "profile",       label: "Perfil",         section: "CONTA" },
   ];
 }
 

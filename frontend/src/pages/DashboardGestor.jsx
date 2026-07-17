@@ -110,7 +110,7 @@ export function DashboardGestor({ session }) {
             {department ? `Gestor de ${department}` : `Gestor · ${session.user.name}`}
           </span>
           <h2>Olá, {firstName}.</h2>
-          <p>Visão consolidada da sua equipa — integrações, desempenho e ausências.</p>
+          <p>Visão consolidada da sua equipa - integrações, desempenho e ausências.</p>
         </div>
         <div className="hero-score">
           <span>A integrar</span>

@@ -81,7 +81,7 @@ export function DashboardColaborador({ session }) {
         <div>
           <span className="eyebrow">Colaborador · {session.user.name}</span>
           <h2>Olá, {firstName}.</h2>
-          <p>O seu resumo pessoal — avaliações, formações e saldo de férias.</p>
+          <p>O seu resumo pessoal - avaliações, formações e saldo de férias.</p>
         </div>
         <div className="hero-score">
           <span>Saldo {year}</span>
