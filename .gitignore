@@ -1,3 +1,20 @@
+# Dependências
 node_modules/
-backend/.env
+
+# Variáveis de ambiente
 .env
+backend/.env
+
+# Vite
+.vite/
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
