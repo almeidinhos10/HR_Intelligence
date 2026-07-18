@@ -12,7 +12,7 @@ const moduleMeta = {
   users:         { icon: ShieldCheck,     description: "Gestão de acessos" },
   profile:       { icon: User,            description: "Os meus dados" },
   performance:   { icon: TrendingUp,      description: "Desempenho" },
-  skills:        { icon: GraduationCap,   description: "Competências" },
+  skills:        { icon: GraduationCap,   description: "Formações" },
   leaves:        { icon: CalendarDays,    description: "Ausências" }
 };
 

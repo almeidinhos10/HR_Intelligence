@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AppLayout } from "./components/AppLayout";
 import { CollaboratorsPage } from "./pages/CollaboratorsPage";
 import { ManagersPage } from "./pages/ManagersPage";
@@ -31,7 +32,10 @@ function getSessionFromStorage() {
 }
 
 export default function App() {
-  const [activePage, setActivePage] = useState("dashboard");
+  const routerNavigate = useNavigate();
+  const location = useLocation();
+  const activePage = location.pathname.replace("/", "") || "dashboard";
+
   const [theme, setTheme] = useState(() => localStorage.getItem("hr_theme") || "light");
   const [session, setSession] = useState(getSessionFromStorage);
   const [employees, setEmployees] = useState([]);
@@ -50,7 +54,7 @@ export default function App() {
   function saveSession(newSession) {
     setSession(newSession);
     localStorage.setItem("hr_session", JSON.stringify(newSession));
-    setActivePage("dashboard");
+    routerNavigate("/dashboard");
   }
 
   function clearSession() {
@@ -58,14 +62,14 @@ export default function App() {
     localStorage.removeItem("hr_session");
     setEmployees([]);
     setManagers([]);
-    setActivePage("dashboard");
+    routerNavigate("/");
   }
 
   function navigate(page) {
     if (!session) return;
     const modules = getAvailableModules(session.user.role);
     if (modules.some((module) => module.id === page)) {
-      setActivePage(page);
+      routerNavigate(`/${page}`);
       setError("");
     }
   }
@@ -193,7 +197,7 @@ export default function App() {
         token={setupToken}
         onSuccess={(data) => {
           saveSession(data);
-          window.history.replaceState({}, "", "/");
+          window.history.replaceState({}, "", "/dashboard");
         }}
       />
     );
@@ -211,44 +215,9 @@ export default function App() {
     );
   }
 
-  function renderPage() {
-    if (activePage === "collaborators") {
-      return (
-        <CollaboratorsPage
-          session={session}
-          employees={employees}
-          gestores={managers}
-          loading={loadingEmployees}
-          submitting={submitting}
-          error={error}
-          onUpdate={handleUpdateEmployee}
-          onToggleStatus={handleToggleStatus}
-          onDelete={handleDeleteEmployee}
-          onReload={loadEmployees}
-        />
-      );
-    }
-
-    if (activePage === "managers") {
-      return (
-        <ManagersPage
-          managers={managers}
-          loading={loadingManagers}
-          submitting={submitting}
-          error={error}
-          onUpdate={handleUpdateManager}
-          onToggleStatus={handleToggleManagerStatus}
-          onDelete={handleDeleteManager}
-        />
-      );
-    }
-
-    if (activePage === "profile") return <ProfilePage session={session} />;
-    if (activePage === "performance") return <PerformancePage session={session} />;
-    if (activePage === "users") return <UsersPage session={session} />;
-    if (activePage === "skills") return <SkillsTrainingPage session={session} />;
-    if (activePage === "leaves") return <LeavesPage session={session} />;
-    return <DashboardPage session={session} />;
+  const allowedPages = getAvailableModules(session.user.role).map((module) => module.id);
+  function guarded(pageId, element) {
+    return allowedPages.includes(pageId) ? element : <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -260,7 +229,49 @@ export default function App() {
       onNavigate={navigate}
       onLogout={clearSession}
     >
-      {renderPage()}
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<DashboardPage session={session} />} />
+        <Route path="/profile" element={guarded("profile", <ProfilePage session={session} />)} />
+        <Route path="/performance" element={guarded("performance", <PerformancePage session={session} />)} />
+        <Route path="/skills" element={guarded("skills", <SkillsTrainingPage session={session} />)} />
+        <Route path="/leaves" element={guarded("leaves", <LeavesPage session={session} />)} />
+        <Route path="/users" element={guarded("users", <UsersPage session={session} />)} />
+        <Route
+          path="/collaborators"
+          element={guarded(
+            "collaborators",
+            <CollaboratorsPage
+              session={session}
+              employees={employees}
+              gestores={managers}
+              loading={loadingEmployees}
+              submitting={submitting}
+              error={error}
+              onUpdate={handleUpdateEmployee}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDeleteEmployee}
+              onReload={loadEmployees}
+            />
+          )}
+        />
+        <Route
+          path="/managers"
+          element={guarded(
+            "managers",
+            <ManagersPage
+              managers={managers}
+              loading={loadingManagers}
+              submitting={submitting}
+              error={error}
+              onUpdate={handleUpdateManager}
+              onToggleStatus={handleToggleManagerStatus}
+              onDelete={handleDeleteManager}
+            />
+          )}
+        />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </AppLayout>
   );
 }
