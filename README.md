@@ -74,11 +74,16 @@ npm install
 Cria um ficheiro `.env` com:
 
 ```
-MONGO_URI=mongodb+srv://...
+PORT=5000
+MONGODB_URI=mongodb+srv://<utilizador>:<password>@cluster.mongodb.net/hr_intelligence
 JWT_SECRET=uma_string_secreta_longa
-EMAIL_USER=...
-EMAIL_PASS=...
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=o_teu_email@gmail.com
+SMTP_PASS=senha_de_aplicacao
+SMTP_FROM=HR Intelligence <o_teu_email@gmail.com>
 ```
+
+> `SMTP_USER`/`SMTP_PASS` são usados para enviar o email de convite/ativação de conta (via Nodemailer). Sem estas variáveis corretas, a criação de utilizadores continua a funcionar, mas o email de convite não é enviado.
 
 ```bash
 npm run dev
