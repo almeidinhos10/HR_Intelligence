@@ -75,7 +75,7 @@ Cria um ficheiro `.env` com:
 
 ```
 PORT=5000
-MONGODB_URI=mongodb+srv://<utilizador>:<password>@cluster.mongodb.net/hr_intelligence
+MONGODB_URI=mongodb://127.0.0.1:27017/hr_intelligence
 JWT_SECRET=uma_string_secreta_longa
 SMTP_HOST=smtp.gmail.com
 SMTP_USER=o_teu_email@gmail.com
